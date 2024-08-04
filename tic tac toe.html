@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: black;
+        }
+
+        #game {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border: 2px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        #restart {
+            padding: 10px 20px;
+            background-color: red;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+    <button id="restart" class="btn btn-primary">Restart Game</button>
+    
+    <script>
+        $(document).ready(function() {
+            let currentPlayer = 'X';
+            let gameState = Array(9).fill(null);
+            const winningConditions = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+
+            function handleClick(event) {
+                const cell = $(event.target);
+                const index = cell.data('index');
+
+                if (gameState[index] !== null || checkWinner()) return;
+
+                gameState[index] = currentPlayer;
+                cell.text(currentPlayer);
+
+                if (checkWinner()) {
+                    setTimeout(() => alert(`${currentPlayer} wins!`), 10);
+                    return;
+                }
+
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                if (currentPlayer === 'O') {
+                    setTimeout(makeAIMove, 500);
+                }
+            }
+
+            function checkWinner() {
+                for (const condition of winningConditions) {
+                    const [a, b, c] = condition;
+                    if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function restartGame() {
+                gameState = Array(9).fill(null);
+                $('.cell').text('');
+                currentPlayer = 'X';
+            }
+
+            function makeAIMove() {
+                const availableCells = gameState
+                    .map((cell, index) => (cell === null ? index : null))
+                    .filter(index => index !== null);
+
+                const randomIndex = Math.floor(Math.random() * availableCells.length);
+                const aiMove = availableCells[randomIndex];
+
+                gameState[aiMove] = 'O';
+                $(`.cell[data-index=${aiMove}]`).text('O');
+
+                if (checkWinner()) {
+                    setTimeout(() => alert('O wins!'), 10);
+                } else {
+                    currentPlayer = 'X';
+                }
+            }
+
+            $('.cell').on('click', handleClick);
+            $('#restart').on('click', restartGame);
+        });
+    </script>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
